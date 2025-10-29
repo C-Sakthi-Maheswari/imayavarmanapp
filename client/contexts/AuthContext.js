@@ -1,4 +1,3 @@
-// client/contexts/AuthContext.js
 import React, { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api, { setAuthToken } from '../services/api';
@@ -7,55 +6,44 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const storedToken = await AsyncStorage.getItem('token');
-        const storedUser = await AsyncStorage.getItem('user');
-        if (storedToken && storedUser) {
-          setAuthToken(storedToken);
-          setToken(storedToken);
-          setUser(JSON.parse(storedUser));
-        }
-      } catch (error) {
-        console.error('Error loading saved user:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadUserData();
-  }, []);
 
   const login = async (email, password) => {
     try {
       const res = await api.post('/auth/login', { email, password });
-      const { token, user } = res.data;
-
-      setToken(token);
-      setUser(user);
+      const token = res.data.token;
+      await AsyncStorage.setItem('token', token);
       setAuthToken(token);
 
-      await AsyncStorage.setItem('token', token);
-      await AsyncStorage.setItem('user', JSON.stringify(user));
+      // Save user info
+      const userData = res.data.user;
+      setUser(userData);
+
+      return true;
     } catch (err) {
-      console.error('Login failed:', err.response?.data || err.message);
-      throw err;
+      console.log('Login error:', err.response?.data || err.message);
+      return false;
     }
   };
 
   const logout = async () => {
-    setUser(null);
-    setToken(null);
-    setAuthToken(null);
     await AsyncStorage.removeItem('token');
-    await AsyncStorage.removeItem('user');
+    setUser(null);
+    setAuthToken(null);
   };
 
+  useEffect(() => {
+    const loadUser = async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (token) {
+        setAuthToken(token);
+        // optionally fetch user info
+      }
+    };
+    loadUser();
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
