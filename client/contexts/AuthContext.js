@@ -1,107 +1,31 @@
-// import React, { createContext, useState, useEffect } from 'react';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// import api, { setAuthToken } from '../services/api';
-
-// export const AuthContext = createContext();
-
-// export const AuthProvider = ({ children }) => {
-//   const [user, setUser] = useState(null);
-
-//   const login = async (email, password) => {
-//     try {
-//       const res = await api.post('/auth/login', { email, password });
-//       const token = res.data.token;
-//       await AsyncStorage.setItem('token', token);
-//       setAuthToken(token);
-
-//       // Save user info
-//       const userData = res.data.user;
-//       setUser(userData);
-
-//       return true;
-//     } catch (err) {
-//       console.log('Login error:', err.response?.data || err.message);
-//       return false;
-//     }
-//   };
-
-//   const logout = async () => {
-//     await AsyncStorage.removeItem('token');
-//     setUser(null);
-//     setAuthToken(null);
-//   };
-
-//   useEffect(() => {
-//     const loadUser = async () => {
-//       const token = await AsyncStorage.getItem('token');
-//       if (token) {
-//         setAuthToken(token);
-//         // optionally fetch user info
-//       }
-//     };
-//     loadUser();
-//   }, []);
-
-//   return (
-//     <AuthContext.Provider value={{ user, login, logout }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
-
-import React, { createContext, useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import React, { createContext, useState } from 'react';
 
 export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+export default function AuthProvider({ children }) {
+  const [userRole, setUserRole] = useState(null); // 'admin' or 'student'
 
-  // 👇 Change this base URL depending on your device setup:
-  // For Android Emulator use 10.0.2.2:5000
-  // For physical device use your local IP (run `ipconfig` on Windows)
-  const BASE_URL = 'http://localhost:5000';
-
-
-  const login = async (email, password) => {
-    try {
-      const res = await axios.post(`${BASE_URL}/login`, { email, password });
-
-      if (res.data.success) {
-        // Save user role and details locally
-        const userData = { email, role: res.data.role };
-        setUser(userData);
-        await AsyncStorage.setItem('user', JSON.stringify(userData));
-        return true;
-      } else {
-        return false;
-      }
-    } catch (err) {
-      console.log('Login error:', err.response?.data || err.message);
-      throw err;
+  // Dummy login function
+  const login = (email, password) => {
+    // Replace with real API call later
+    if (email === 'admin@example.com' && password === '1234') {
+      setUserRole('admin');
+      return { success: true };
+    } else if (email === 'student@example.com' && password === '1234') {
+      setUserRole('student');
+      return { success: true };
+    } else {
+      return { success: false, message: 'Invalid credentials' };
     }
   };
 
-  const logout = async () => {
-    await AsyncStorage.removeItem('user');
-    setUser(null);
+  const logout = () => {
+    setUserRole(null);
   };
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const storedUser = await AsyncStorage.getItem('user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
-    };
-    loadUser();
-  }, []);
-
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ userRole, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
+}

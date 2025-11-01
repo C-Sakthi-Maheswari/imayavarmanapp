@@ -1,40 +1,34 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import axios from 'axios';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
 
-export default function AddStudent({ navigation }) {
+export default function AddStudent() {
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [contact, setContact] = useState('');
+  const [studentId, setStudentId] = useState('');
 
-  const handleAddStudent = async () => {
-    try {
-      await axios.post('http://localhost:5000/api/admin/students', { name, email, contact });
-      Alert.alert('Success', 'Student added successfully');
-      navigation.goBack();
-    } catch (err) {
-      console.log(err);
-      Alert.alert('Error', 'Failed to add student');
-    }
+  const handleAdd = () => {
+    Alert.alert('Student Added', `Name: ${name}\nID: ${studentId}`);
+    setName('');
+    setStudentId('');
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Add Student</Text>
-      <TextInput style={styles.input} placeholder="Name" value={name} onChangeText={setName} />
-      <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} />
-      <TextInput style={styles.input} placeholder="Contact" value={contact} onChangeText={setContact} />
-      <TouchableOpacity style={styles.button} onPress={handleAddStudent}>
+
+      <TextInput style={styles.input} placeholder="Full Name" value={name} onChangeText={setName} />
+      <TextInput style={styles.input} placeholder="Student ID" value={studentId} onChangeText={setStudentId} />
+
+      <TouchableOpacity style={styles.button} onPress={handleAdd}>
         <Text style={styles.buttonText}>Add Student</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container:{flex:1,justifyContent:'center',alignItems:'center',padding:20,backgroundColor:'#e6f2ff'},
-  title:{fontSize:24,fontWeight:'700',marginBottom:20,color:'#0073e6'},
-  input:{width:'80%',height:50,borderColor:'#ccc',borderWidth:1,borderRadius:8,paddingHorizontal:15,marginBottom:15,backgroundColor:'#fff'},
-  button:{width:'80%',height:50,backgroundColor:'#0073e6',borderRadius:8,justifyContent:'center',alignItems:'center'},
-  buttonText:{color:'#fff',fontSize:18,fontWeight:'600'}
+  container: { padding: 20, alignItems: 'center' },
+  title: { fontSize: 24, fontWeight: '700', marginBottom: 20 },
+  input: { width: '100%', borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 12, marginVertical: 10 },
+  button: { backgroundColor: '#0073e6', padding: 15, borderRadius: 10, marginTop: 15, width: '100%', alignItems: 'center' },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 });
