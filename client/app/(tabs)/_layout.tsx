@@ -1,35 +1,35 @@
-import { Tabs } from 'expo-router';
 import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import LoginScreen from '../../screens/LoginScreen';
+import AdminDashboard from '../../screens/AdminDashboard';
+import StudentDashboard from '../../screens/StudentDashboard';
+import StudentProfile from '../../screens/StudentProfile';
+import AttendanceScreen from '../../screens/AttendanceScreen';
+import EventsScreen from '../../screens/EventsScreen';
+import AddStudent from '../../screens/AddStudent';
+import AddEvent from '../../screens/AddEvent';
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+const Stack = createNativeStackNavigator();
 
+export default function RootStack() {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {/* Login Screen */}
+      <Stack.Screen name="Login" component={LoginScreen} />
+      
+      {/* Admin Screens */}
+      <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
+      <Stack.Screen name="AddStudent" component={AddStudent} />
+      <Stack.Screen name="AddEvent" component={AddEvent} />
+      
+      {/* Student Screens */}
+      <Stack.Screen name="StudentDashboard" component={StudentDashboard} />
+      <Stack.Screen name="StudentProfile" component={StudentProfile} />
+      <Stack.Screen name="Attendance" component={AttendanceScreen} />
+      
+      {/* Shared Screens */}
+      <Stack.Screen name="Events" component={EventsScreen} />
+    </Stack.Navigator>
   );
 }

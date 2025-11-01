@@ -1,136 +1,60 @@
-import React, { useState, useContext } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
-  ActivityIndicator, 
-  KeyboardAvoidingView,
-  Platform
-} from 'react-native';
-import { AuthContext } from '../contexts/AuthContext';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import axios from 'axios';
 
-export default function LoginScreen({ navigation }) {
-  const { login } = useContext(AuthContext);
-
+export default function LoginScreen({ navigation, setUserRole }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      setError('Please enter both email and password');
-      return;
-    }
+    console.log('Login button pressed');
 
     setLoading(true);
-    setError('');
-
     try {
-      await login(email, password); // AuthContext handles saving user & token
-      setLoading(false);
-      // Navigation is automatic via RootNavigator based on role
+      const response = await api.post('/login', { email, password });
+      console.log('Response:', response.data);
+
+      // ✅ Use setUserRole from props
+      setUserRole(response.data.role);
+
+      if (response.data.role === 'admin') {
+        navigation.replace('AdminDashboard');
+      } else {
+        navigation.replace('StudentDashboard', { id: response.data.id });
+      }
     } catch (err) {
+      console.log('Error:', err.response?.data || err.message);
+      Alert.alert('Login failed', 'Check your credentials');
+    } finally {
       setLoading(false);
-      setError(err.response?.data?.message || 'Login failed. Try again.');
     }
   };
 
+
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <View style={styles.card}>
-        <Text style={styles.title}>Silambam Training Login</Text>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <View style={styles.card}>
+          <Text style={styles.title}>Silambam Login</Text>
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+          <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
+          <TextInput style={styles.input} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-
-        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Login</Text>
-          )}
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.button} onPress={handleLogin} activeOpacity={0.8}>
+            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Login</Text>}
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#e6f2ff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  card: {
-    width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 25,
-    textAlign: 'center',
-    color: '#0073e6',
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
-  },
-  button: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#0073e6',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 18,
-  },
-  error: {
-    color: '#cc0000',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
+  container: { flexGrow:1, justifyContent:'center', alignItems:'center', backgroundColor:'#e6f2ff', padding:20 },
+  card: { width:'100%', backgroundColor:'#fff', borderRadius:12, padding:30, shadowColor:'#000', shadowOffset:{width:0,height:2}, shadowOpacity:0.2, shadowRadius:8, elevation:5 },
+  title: { fontSize:24, fontWeight:'700', marginBottom:25, textAlign:'center', color:'#0073e6' },
+  input: { width:'100%', height:50, borderColor:'#ccc', borderWidth:1, borderRadius:8, paddingHorizontal:15, marginBottom:15, backgroundColor:'#f9f9f9' },
+  button: { width:'100%', height:50, backgroundColor:'#0073e6', borderRadius:8, justifyContent:'center', alignItems:'center', marginTop:10 },
+  buttonText: { color:'#fff', fontWeight:'600', fontSize:18 }
 });

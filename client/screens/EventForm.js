@@ -21,6 +21,7 @@ export default function EventForm({ route, navigation }) {
     try {
       if (event) {
         await api.put(`/events/${event._id}`, { title, description, date, venue });
+
         Alert.alert('Success', 'Event updated successfully');
       } else {
         await api.post('/events', { title, description, date, venue });

@@ -43,6 +43,7 @@ export default function AttendanceScreen() {
         // Update attendance in backend
         await api.post('/attendance', { studentId: res.data.matchedStudentId });
         Alert.alert('Success', `Attendance marked for Student ID: ${res.data.matchedStudentId}`);
+
       } else {
         Alert.alert('No Match', 'No student face matched. Try again.');
       }

@@ -1,18 +1,13 @@
-// client/services/api.js
+// frontend/api.js
+
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000'; // replace with your backend
+// Replace 'localhost' with your PC IP if testing on real device
+const API_BASE = 'http://localhost:5000';
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: API_BASE,
+  timeout: 5000,
 });
-
-export const setAuthToken = (token) => {
-  if (token) {
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    delete api.defaults.headers.common['Authorization'];
-  }
-};
 
 export default api;
