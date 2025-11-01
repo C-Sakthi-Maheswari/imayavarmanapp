@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { AuthContext } from '../contexts/AuthContext';
-
 export default function AdminDashboard({ navigation }) {
   const { logout } = useContext(AuthContext);
 
